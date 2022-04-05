@@ -1,6 +1,5 @@
 package io.iog.minichain.models
 
-import scala.annotation.tailrec
 import scala.util.Random
 
 object Miner:
@@ -69,10 +68,9 @@ object Miner:
     //
     // where Hash(block; nonce) is a function of nonce only, all the other block
     // field values are just the given method arguments.
-    @tailrec
-    def loop(nonce: Nonce): Block =
-      val block = Block(index, parentHash, transactions, miningTargetNumber, nonce)
+    lazy val next: Block =
+      val block = Block(index, parentHash, transactions, miningTargetNumber, Random.nextLong())
       if block.cryptoHash.toNumber < miningTargetNumber then block
-      else loop(Random.nextLong())
+      else next
 
-    loop(Random.nextLong())
+    next
