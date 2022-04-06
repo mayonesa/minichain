@@ -1,7 +1,7 @@
 package io.iog.minichain.models
 
 import io.iog.minichain.adts.IndexedMap
-import zio.{Ref, UIO}
+import zio.{Ref, UIO, Task}
 
 // A Blockchain is a sequence of blocks, each one having an index.
 // The index of a block is the index of its parent plus one.
@@ -26,7 +26,11 @@ end Blockchain
 // The purpose of this internal data structure is to avoid traversing the linked list
 // of blocks when answering queries like findByIndex.
 class FastBlockchain(chainRef: Ref[IndexedMap[Hash, Block]]) extends Blockchain:
-  def append(block: Block): UIO[Unit] = chainRef.update(_ :+ (block.cryptoHash -> block))
+  def append(block: Block): Task[Unit] =
+    Task.suspend(chainRef.update { chain =>
+      if chain.size != block.index then throw new IndexOutOfBoundsException(block.index)
+      chain :+ (block.cryptoHash -> block)
+    })
 
   def findByIndex(index: Int): UIO[Option[Block]] = get(_.at(index))
 
