@@ -1,9 +1,8 @@
 package io.iog.minichain.models
 
-import java.io.{ByteArrayOutputStream, ObjectOutputStream}
-
 type Transaction = String // since it is just a string, simplifying into a `type`
 type Nonce = Long
+val Nonce = Long
 
 // Every block has an index, starting from zero (0).
 // The block at index 0 is called the Genesis block.
