@@ -1,6 +1,8 @@
 package io.iog.minichain.models
 
 import scala.annotation.tailrec
+import scala.math.min
+import zio.Task
 
 object Miner:
   // NOTE: A Hash is also a Number, we use the two interchangeably.
@@ -20,6 +22,15 @@ object Miner:
     transactions = Seq("Hello Blockchain, this is Genesis :)"),
     StdMiningTargetNumber,
   )
+
+  private val Parallelism = 10
+  private lazy val Step = Nonce.MaxValue / Parallelism
+  private lazy val Betweens = Iterable.tabulate(Parallelism) { i =>
+    val start = i * Step
+    val inclusiveEnd = if i == Parallelism then Nonce.MaxValue else start + Step
+    (start, inclusiveEnd)
+  }
+
 
   // Create a target number with the requirement of having
   // some leading zeros. More leading zeros means smaller target number.
@@ -61,17 +72,22 @@ object Miner:
     parentHash: Hash,
     transactions: Seq[Transaction],
     miningTargetNumber: Number,
-  ): Block =
-    // Solve this informal inequality for nonce:
-    //
-    //   Hash(block; nonce).toNumber < miningTargetNumber
-    //
-    // where Hash(block; nonce) is a function of nonce only, all the other block
-    // field values are just the given method arguments.
-    @tailrec
-    def loop(nonce: Nonce): Block =
-      val block = Block(index, parentHash, transactions, miningTargetNumber, nonce)
-      if block.cryptoHash.toNumber < miningTargetNumber then block
-      else loop(nonce + 1)
+  ): Task[Block] =
+    def mineBetween(start: Nonce, inclusiveEnd: Nonce) =
+      Task.blocking(Task.attempt {
+        @tailrec
+        def loop(nonce: Nonce): Option[Block] =
+          if nonce > inclusiveEnd then
+            None
+          else
+            val block = Block(index, parentHash, transactions, miningTargetNumber, nonce)
+            if block.cryptoHash.toNumber < miningTargetNumber then Some(block)
+            else loop(nonce + 1)
 
-    loop(0)
+        loop(start)
+      })
+
+    val parallelMines = Betweens.map { (start, inclusiveEnd) =>
+      mineBetween(start, inclusiveEnd)
+    }
+    Task.raceAll(parallelMines.head, parallelMines.tail).map(_.get)
