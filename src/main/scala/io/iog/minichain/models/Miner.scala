@@ -25,9 +25,9 @@ object Miner:
 
   private val Parallelism = 10
   private lazy val Step = Nonce.MaxValue / Parallelism
-  private lazy val Betweens = Iterable.tabulate(Parallelism) { i =>
-    val start = i * Step
-    val inclusiveEnd = if i == Parallelism then Nonce.MaxValue else start + Step
+  private lazy val LastStart = Step * Parallelism
+  private lazy val Betweens = (0 until Nonce.MaxValue by Step).map { start =>
+    val inclusiveEnd = if start == LastStart then Nonce.MaxValue else start + Step - 1
     (start, inclusiveEnd)
   }
 
