@@ -26,7 +26,7 @@ object Miner:
   private val Parallelism = 10
   private lazy val Step = Nonce.MaxValue / Parallelism
   private lazy val LastStart = Step * Parallelism
-  private lazy val Betweens = (0 until Nonce.MaxValue by Step).map { start =>
+  private lazy val Betweens = (0l until Nonce.MaxValue by Step).map { start =>
     val inclusiveEnd = if start == LastStart then Nonce.MaxValue else start + Step - 1
     (start, inclusiveEnd)
   }
