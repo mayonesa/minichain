@@ -39,10 +39,10 @@ class FastBlockchain(chainRef: Ref[IndexedMap[Hash, Block]]) extends Blockchain:
           UIO.none
         else
           val block = chain.at(idx).get
-          that.containsHash(block.cryptoHash).flatMap(
-            if _ then UIO.some(block)
+          that.containsHash(block.cryptoHash).flatMap { sameHash =>
+            if sameHash then UIO.some(block)
             else loop(idx - 1)
-          )
+          }
 
       loop(chain.size - 1)
     }
