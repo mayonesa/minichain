@@ -8,7 +8,7 @@ import zio.{Ref, UIO, Task}
 // A Blockchain always has a genesis block at index 0, which is the lowest index.
 trait Blockchain: // removed `sealed` -- not used as an enumeration or sum type
   // Add a block to the chain.
-  def append(block: Block): UIO[Unit]
+  def append(block: Block): Task[Unit]
 
   // Find a block by index.
   def findByIndex(index: Int): UIO[Option[Block]]
