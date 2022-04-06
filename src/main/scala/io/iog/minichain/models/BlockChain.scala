@@ -22,9 +22,6 @@ trait Blockchain: // removed `sealed` -- not used as an enumeration or sum type
   def containsHash(hash: Hash): UIO[Boolean]
 end Blockchain
 
-// Implement an in-memory blockchain that internally has an indexing data structure.
-// The purpose of this internal data structure is to avoid traversing the linked list
-// of blocks when answering queries like findByIndex.
 class FastBlockchain(chainRef: Ref[IndexedMap[Hash, Block]]) extends Blockchain:
   def append(block: Block): Task[Unit] =
     Task.suspend(chainRef.update { chain =>

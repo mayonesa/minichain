@@ -5,9 +5,9 @@ import scala.math.min
 import zio.Task
 
 object Miner:
-  // NOTE: A Hash is also a Number, we use the two interchangeably.
+  // NOTE: A Hash is also a Number, the two are used interchangeably.
   //
-  // Mining is about computing hashes until we get something that is less
+  // Mining is about computing hashes until it is less
   // than a given target number.
   // This target serves, in a way, as the maximum possible number that a
   // proof of work computation should produce.
@@ -15,7 +15,7 @@ object Miner:
 
   // Mines the Genesis block.
   // Normally, this is done by the system during bootstrapping
-  // and every other block is mined by a miner.
+  // and all subsequent blocks are mined by a miner.
   final val Genesis = Miner.mineNextBlock(
     index = 0, // The very first block
     parentHash = Sha256.ZeroHash, // Let's assume this is by definition for the Genesis block.
@@ -32,10 +32,10 @@ object Miner:
   }
 
 
-  // Create a target number with the requirement of having
+  // Creates a target number with the requirement of having
   // some leading zeros. More leading zeros means smaller target number.
   //
-  // NOTE: use less leading zeros if not wanting to cause too many compute cycles
+  // NOTE: use less leading zeros if not too particular and not wanting to cause too many compute cycles
   private def targetByLeadingZeros(zeros: Int) =
     require(zeros < Sha256.NumberOfBytes)
 
@@ -52,21 +52,20 @@ object Miner:
     Number(1, bytes)
 
   // Actual "proof-of-work"-style computation.
-  // Compare the parameters of this method with the fields of a Block and
-  // you'll see that the only thing missing here is the nonce. Here is why.
+  // the parameters of this method is
+  // only thing missing the nonce when compared with the fields of a Block
   //
-  // Initially we have all the fixed elements a block:
+  // all the fixed elements a block:
   //
   //  - index,
   //  - parentHash,
   //  - transactions,
   //  - miningTargetNumber
   //
-  // and by varying the nonce we try to have a block hash that is below the
-  // given miningTargetNumber.
+  // by varying the nonce, a block hash that is below the
+  // given miningTargetNumber is attempted.
   //
-  // NOTE Remember that the block hash can be transformed to an actual number,
-  //      so we can talk about hash and number interchangeably.
+  // NOTE: the block hash can be transformed to an actual number
   def mineNextBlock(
     index: Int,
     parentHash: Hash,
