@@ -87,7 +87,7 @@ object Miner:
         loop(start)
       })
 
-    val parallelMines = Betweens.map { (start, inclusiveEnd) =>
+    val mines = Betweens.map { (start, inclusiveEnd) =>
       mineBetween(start, inclusiveEnd)
     }
-    Task.raceAll(parallelMines.head, parallelMines.tail).map(_.get)
+    Task.raceAll(mines.head, mines.tail).map(_.get)
