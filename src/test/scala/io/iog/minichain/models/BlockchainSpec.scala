@@ -70,13 +70,14 @@ object BlockchainSpec extends DefaultRunnableSpec:
         blockchain <- Blockchain.empty
         genesis    <- Genesis
         _          <- blockchain.append(genesis)
-        range      =  1 until 100
-        _          <- Task.foreachDiscard(range) { i =>
+        _          <- Task.foreachDiscard(1 until 100) { i =>
           val block = Block(i, Hash("hello".getBytes), Seq("2.1", "2.2"), StdMiningTargetNumber, i * 5)
           blockchain.append(block)
         }
-        results    <- UIO.foreachPar(range)(blockchain.findByIndex)
-      yield assertTrue(results.forall(_.isDefined))
+        results    <- UIO.foreachPar(0 until 100) { i =>
+          blockchain.findByIndex(i).map(_.get.index === i)
+        }
+      yield assertTrue(results.forall(identity))
     } @@ flaky(100),
   )
 
