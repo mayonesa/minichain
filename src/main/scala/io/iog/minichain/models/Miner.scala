@@ -11,12 +11,12 @@ object Miner:
   // than a given target number.
   // This target serves, in a way, as the maximum possible number that a
   // proof of work computation should produce.
-  final val StdMiningTargetNumber = targetByLeadingZeros(1)
+  lazy val StdMiningTargetNumber: Number = targetByLeadingZeros(1)
 
   // Mines the Genesis block.
   // Normally, this is done by the system during bootstrapping
   // and all subsequent blocks are mined by a miner.
-  final val Genesis = Miner.mineNextBlock(
+  lazy val Genesis: Task[Block] = mine(
     index = 0, // The very first block
     parentHash = Sha256.ZeroHash, // Let's assume this is by definition for the Genesis block.
     transactions = Seq("Hello Blockchain, this is Genesis :)"),
@@ -66,7 +66,7 @@ object Miner:
   // given miningTargetNumber is attempted.
   //
   // NOTE: the block hash can be transformed to an actual number
-  def mineNextBlock(
+  def mine(
     index: Int,
     parentHash: Hash,
     transactions: Seq[Transaction],
