@@ -80,7 +80,7 @@ object Miner:
             None
           else
             val block = Block(index, parentHash, transactions, miningTargetNumber, nonce)
-            if block.cryptoHash.toNumber < miningTargetNumber then Some(block)
+            if block.cryptoHash.asNumber < miningTargetNumber then Some(block)
             else loop(nonce + 1)
 
         loop(start)

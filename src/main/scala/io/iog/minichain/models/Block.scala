@@ -20,4 +20,4 @@ case class Block(
 
   // The essence of PoW is that it is a problem whose solution is easy
   // (in computational resources) to verify but difficult to find.
-  def minedProperly(): Boolean = cryptoHash.toNumber < miningTargetNumber // assertions can be turned off
+  def minedProperly(): Boolean = cryptoHash.asNumber < miningTargetNumber // assertions can be turned off
