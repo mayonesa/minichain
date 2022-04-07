@@ -28,7 +28,7 @@ end Blockchain
 private class FastBlockchain(chainRef: Ref[IndexedMap[Hash, Block]]) extends Blockchain:
   def append(block: Block): Task[Unit] =
     Task.suspend(chainRef.update { chain =>
-      if chain.size != block.index then throw new IndexOutOfBoundsException(block.index)
+      require(chain.size == block.index, "append-attempt block index clashes w/ target blockchain")
       chain :+ (block.cryptoHash -> block)
     })
 
