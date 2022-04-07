@@ -48,7 +48,7 @@ class FastBlockchain(chainRef: Ref[IndexedMap[Hash, Block]]) extends Blockchain:
       loop(chain.size - 1)
     }
 
-  def containsHash(hash: Hash): UIO[Boolean] = findByHash(hash).map(_.isDefined)
+  def containsHash(hash: Hash): UIO[Boolean] = get(_.containsKey(hash))
 
-  private def get(f: IndexedMap[Hash, Block] => Option[Block]) = chainRef.get.map(f)
+  private def get[A](f: IndexedMap[Hash, Block] => A) = chainRef.get.map(f)
 end FastBlockchain
