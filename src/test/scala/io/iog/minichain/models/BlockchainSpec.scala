@@ -3,6 +3,7 @@ package io.iog.minichain.models
 import zio.{UIO, Task}
 import zio.test.*
 import zio.test.Assertion.*
+import zio.test.TestAspect.*
 
 import org.scalactic.TripleEquals.convertToEqualizer
 
@@ -21,28 +22,28 @@ object BlockchainSpec extends DefaultRunnableSpec:
         _          <- blockchain.append(Genesis)
         res        <- blockchain.findByIndex(Genesis.index)
       yield assertTrue(res.contains(Genesis))
-    },
+    } @@ nonFlaky(100),
     test("not find-by-index") {
       for
         blockchain <- Blockchain.empty
         _          <- blockchain.append(Genesis)
         res        <- blockchain.findByIndex(1)
       yield assertTrue(res.isEmpty)
-    },
+    } @@ nonFlaky(100),
     test("not find-by-hash") {
       for
         blockchain <- Blockchain.empty
         _          <- blockchain.append(Genesis)
         res        <- blockchain.findByHash(Hash("wrong hash".getBytes))
       yield assertTrue(res.isEmpty)
-    },
+    } @@ nonFlaky(100),
     test("not find-by-hash") {
       for
         blockchain <- Blockchain.empty
         _          <- blockchain.append(Genesis)
         res        <- blockchain.findByHash(Hash("wrong hash".getBytes))
       yield assertTrue(res.isEmpty)
-    },
+    } @@ nonFlaky(100),
     test("common ancestor") {
       for
         blockchain1  <- Blockchain.empty
@@ -57,7 +58,7 @@ object BlockchainSpec extends DefaultRunnableSpec:
           StdMiningTargetNumber, 3))
         latestCommon <- blockchain1.latestCommon(blockchain2)
       yield assertTrue(latestCommon === block2)
-    },
+    } @@ nonFlaky(100),
   )
 
   private val multiFiber = suite("multi-fiber fast blockchain spec")(
@@ -71,8 +72,8 @@ object BlockchainSpec extends DefaultRunnableSpec:
         results    <- UIO.foreachPar(0 until 100) { i =>
           blockchain.findByIndex(i).map(_.get.index === i)
         }
-      yield assertTrue(results.forall(identity))
-    },
+      yield assertTrue(results.forall(bool => bool))
+    } @@ nonFlaky(100),
   )
 
   def spec = suite("fast blockchain spec")(singleFiber, multiFiber)

@@ -2,6 +2,7 @@ package io.iog.minichain.models
 
 import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import java.security.MessageDigest
+import zio.{Semaphore, Task}
 
 // Hashes are produced by a cryptographic function and in "mini-chain"
 // SHA-256  is used, which always generates a 32-byte (256-bit) value.
@@ -14,13 +15,16 @@ object Sha256:
 
   // hashes a composite structure whose constituents can be given
   // as byte arrays.
-  def apply(anies: Any*): Hash =  // Bytes -> Any -- don't leak out too much implementation info
-    for (any <- anies) {
-      TheDigest.update(toBytes(any))
-    }
-    val hash = TheDigest.digest()
-    assert(hash.length == NumberOfBytes)
-    Hash(hash)
+  def apply(anies: Any*): Task[Hash] =  // Bytes -> Any -- don't leak out too much implementation info
+    Semaphore.make(1).flatMap(_.withPermit {
+      Task.attempt {
+        for (any <- anies) TheDigest.update(toBytes(any))
+        val hash = TheDigest.digest()
+        assert(hash.length == NumberOfBytes)
+        Hash(hash)
+      }
+    })
+    
 
   private def toBytes(any: Any) =
     val stream = new ByteArrayOutputStream()

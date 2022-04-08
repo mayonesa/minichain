@@ -1,5 +1,7 @@
 package io.iog.minichain.models
 
+import zio.{Task, UIO}
+
 type Transaction = String // since it is just a string, simplifying into a `type`
 type Nonce = Long
 val Nonce = Long
@@ -16,8 +18,9 @@ case class Block(
   nonce: Nonce,
 ):
 
-  lazy val cryptoHash: Hash = Sha256(index, parentHash, transactions, miningTargetNumber, nonce)
+  val cryptoHash: UIO[Task[Hash]] = Sha256(index, parentHash, transactions, miningTargetNumber, nonce).memoize
 
   // The essence of PoW is that it is a problem whose solution is easy
   // (in computational resources) to verify but difficult to find.
-  lazy val minedProperly: Boolean = cryptoHash.asNumber < miningTargetNumber // assertions can be turned off
+  val minedProperly: Task[Boolean] =
+    cryptoHash.flatMap(_.map(_.asNumber < miningTargetNumber)) // assertions can be turned off

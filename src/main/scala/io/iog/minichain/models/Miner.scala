@@ -1,6 +1,5 @@
 package io.iog.minichain.models
 
-import scala.annotation.tailrec
 import zio.Task
 
 object Miner:
@@ -22,10 +21,10 @@ object Miner:
     StdMiningTargetNumber,
   )
 
-  private val Parallelism = 10
-  private lazy val Step = Nonce.MaxValue / Parallelism
-  private lazy val LastStart = Step * Parallelism
-  private lazy val Betweens = (0l until Nonce.MaxValue by Step).map { start =>
+  private val NInitBetweens = 9
+  private lazy val Step = Nonce.MaxValue / NInitBetweens
+  private lazy val LastStart = Step * NInitBetweens
+  private lazy val Betweens = (0l to Nonce.MaxValue by Step).map { start =>
     val inclusiveEnd = if start == LastStart then Nonce.MaxValue else start + Step - 1
     (start, inclusiveEnd)
   }
@@ -52,15 +51,18 @@ object Miner:
     miningTargetNumber: Number,
   ): Task[Block] =
     def mineBetween(start: Nonce, inclusiveEnd: Nonce) =
-      Task.blocking(Task.attempt {
-        @tailrec
-        def loop(nonce: Nonce): Option[Block] =
+      Task.blocking(Task.suspend {
+        def loop(nonce: Nonce): Task[Option[Block]] =
           if nonce > inclusiveEnd then
-            None
+            Task.none
           else
             val block = Block(index, parentHash, transactions, miningTargetNumber, nonce)
-            if block.cryptoHash.asNumber < miningTargetNumber then Some(block)
-            else loop(nonce + 1)
+            for
+              hashMemo <- block.cryptoHash
+              hash     <- hashMemo
+              result   <- if hash.asNumber < miningTargetNumber then Task.some(block)
+                          else loop(nonce + 1)
+            yield result
 
         loop(start)
       })
