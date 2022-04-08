@@ -5,7 +5,7 @@ import zio.test.*
 import zio.test.Assertion.*
 import zio.test.TestAspect.*
 
-object MinerSpec extends DefaultRunnableSpec:
+object MinerSpec extends ZIOSpecDefault:
   def spec = suite("miner spec")(
     test("mines") {
       assertM(Task.foreach(0 until 100) { i =>
