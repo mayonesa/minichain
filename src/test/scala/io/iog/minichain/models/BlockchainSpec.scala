@@ -20,28 +20,28 @@ object BlockchainSpec extends DefaultRunnableSpec:
         _          <- blockchain.append(Genesis)
         res        <- blockchain.findByIndex(Genesis.index)
       yield assertTrue(res.contains(Genesis))
-    } @@ nonFlaky(100),
+    } @@ nonFlaky(10),
     test("not find-by-index") {
       for
         blockchain <- Blockchain.empty
         _          <- blockchain.append(Genesis)
         res        <- blockchain.findByIndex(1)
       yield assertTrue(res.isEmpty)
-    } @@ nonFlaky(100),
+    } @@ nonFlaky(10),
     test("not find-by-hash") {
       for
         blockchain <- Blockchain.empty
         _          <- blockchain.append(Genesis)
         res        <- blockchain.findByHash(Hash("wrong hash".getBytes))
       yield assertTrue(res.isEmpty)
-    } @@ nonFlaky(100),
+    } @@ nonFlaky(10),
     test("not find-by-hash") {
       for
         blockchain <- Blockchain.empty
         _          <- blockchain.append(Genesis)
         res        <- blockchain.findByHash(Hash("wrong hash".getBytes))
       yield assertTrue(res.isEmpty)
-    } @@ nonFlaky(100),
+    } @@ nonFlaky(10),
     test("common ancestor") {
       for
         blockchain1  <- Blockchain.empty
@@ -56,7 +56,7 @@ object BlockchainSpec extends DefaultRunnableSpec:
           StdMiningTargetNumber, 3))
         latestCommon <- blockchain1.latestCommon(blockchain2)
       yield assertTrue(latestCommon === block2)
-    } @@ nonFlaky(100),
+    } @@ nonFlaky(10),
   )
 
   private val multiFiber = suite("multi-fiber fast blockchain spec")(
@@ -71,7 +71,7 @@ object BlockchainSpec extends DefaultRunnableSpec:
           blockchain.findByIndex(i).map(_.get.index === i)
         }
       yield assertTrue(results.forall(bool => bool))
-    } @@ nonFlaky(100),
+    } @@ nonFlaky(10),
   )
 
-  def spec = suite("fast blockchain spec")(singleFiber, multiFiber) @@ ignore
+  def spec = suite("fast blockchain spec")(singleFiber, multiFiber)

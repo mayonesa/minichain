@@ -11,5 +11,5 @@ object MinerSpec extends DefaultRunnableSpec:
       assertM(Task.foreach(0 until 100) { i =>
         Miner.mine(i, Hash("hello".getBytes), Seq("2.1", "2.2"), Miner.StdMiningTargetNumber).map(_.minedProperly)
       })(forall(isTrue))
-    } @@ nonFlaky(100)
+    } @@ nonFlaky(10)
   )

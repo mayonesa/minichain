@@ -15,12 +15,14 @@ object Sha256:
   // hashes a composite structure whose constituents can be given
   // as byte arrays.
   def apply(anies: Any*): Hash =  // Bytes -> Any -- don't leak out too much implementation info
-    for (any <- anies) {
-      TheDigest.update(toBytes(any))
+    TheDigest.synchronized {
+      for (any <- anies)
+        TheDigest.update(toBytes(any))
+
+      val hash = TheDigest.digest()
+      assert(hash.length == NumberOfBytes)
+      Hash(hash)
     }
-    val hash = TheDigest.digest()
-    assert(hash.length == NumberOfBytes)
-    Hash(hash)
 
   private def toBytes(any: Any) =
     val stream = new ByteArrayOutputStream()
