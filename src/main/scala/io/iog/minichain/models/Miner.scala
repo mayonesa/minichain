@@ -1,7 +1,6 @@
 package io.iog.minichain.models
 
 import scala.annotation.tailrec
-import scala.math.min
 import zio.Task
 
 object Miner:
@@ -30,26 +29,6 @@ object Miner:
     val inclusiveEnd = if start == LastStart then Nonce.MaxValue else start + Step - 1
     (start, inclusiveEnd)
   }
-
-
-  // Creates a target number with the requirement of having
-  // some leading zeros. More leading zeros means smaller target number.
-  //
-  // NOTE: use less leading zeros if not too particular and not wanting to cause too many compute cycles
-  private def targetByLeadingZeros(zeros: Int) =
-    require(zeros < Sha256.NumberOfBytes)
-
-    val bytes: Bytes =
-      Array.tabulate[Byte](32) { n =>
-        if (n < zeros) {
-          0
-        }
-        else {
-          0xff.toByte
-        }
-      }
-
-    Number(1, bytes)
 
   // Actual "proof-of-work"-style computation.
   // the parameters of this method is
@@ -90,3 +69,22 @@ object Miner:
       mineBetween(start, inclusiveEnd)
     }
     Task.raceAll(mines.head, mines.tail).map(_.get)
+
+  // Creates a target number with the requirement of having
+  // some leading zeros. More leading zeros means smaller target number.
+  //
+  // NOTE: use less leading zeros if not too particular and not wanting to cause too many compute cycles
+  private def targetByLeadingZeros(zeros: Int) =
+    require(zeros < Sha256.NumberOfBytes)
+
+    val bytes: Bytes =
+      Array.tabulate[Byte](32) { n =>
+        if (n < zeros) {
+          0
+        }
+        else {
+          0xff.toByte
+        }
+      }
+
+    Number(1, bytes)
