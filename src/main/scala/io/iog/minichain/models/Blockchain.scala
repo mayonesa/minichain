@@ -28,9 +28,8 @@ end Blockchain
 private class FastBlockchain(chainRef: Ref[IndexedMap[Hash, Block]]) extends Blockchain:
   def append(block: Block): Task[Unit] =
     for
-      hashMemo <- block.cryptoHash
-      hash     <- hashMemo
-      _        <- Task.suspend(chainRef.update { chain =>
+      hash <- block.cryptoHash
+      _    <- Task.suspend(chainRef.update { chain =>
         require(chain.size == block.index, "append-attempt block index clashes w/ target blockchain")
         chain :+ (hash -> block)
       })
@@ -48,8 +47,7 @@ private class FastBlockchain(chainRef: Ref[IndexedMap[Hash, Block]]) extends Blo
         else
           val block = chain.at(idx).get
           for
-            hashMemo <- block.cryptoHash
-            hash     <- hashMemo
+            hash     <- block.cryptoHash
             sameHash <- that.containsHash(hash)
             result   <- if sameHash then Task.succeed(block)
                         else loop(idx - 1)

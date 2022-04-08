@@ -58,9 +58,8 @@ object Miner:
           else
             val block = Block(index, parentHash, transactions, miningTargetNumber, nonce)
             for
-              hashMemo <- block.cryptoHash
-              hash     <- hashMemo
-              result   <- if hash.asNumber < miningTargetNumber then Task.some(block)
+              hash   <- block.cryptoHash
+              result <- if hash.asNumber < miningTargetNumber then Task.some(block)
                           else loop(nonce + 1)
             yield result
 
