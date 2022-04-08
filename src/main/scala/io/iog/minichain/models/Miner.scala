@@ -4,20 +4,11 @@ import scala.annotation.tailrec
 import zio.Task
 
 object Miner:
-  // NOTE: A Hash is also a Number, the two are used interchangeably.
-  //
-  // Mining is about computing hashes until it is less
-  // than a given target number.
-  // This target serves, in a way, as the maximum possible number that a
-  // proof of work computation should produce.
   lazy val StdMiningTargetNumber: Number = targetByLeadingZeros(1)
 
-  // Mines the Genesis block.
-  // Normally, this is done by the system during bootstrapping
-  // and all subsequent blocks are mined by a miner.
   lazy val Genesis: Task[Block] = mine(
-    index = 0, // The very first block
-    parentHash = Sha256.ZeroHash, // Let's assume this is by definition for the Genesis block.
+    index = 0,
+    parentHash = Sha256.ZeroHash,
     transactions = Seq("Hello Blockchain, this is Genesis :)"),
     StdMiningTargetNumber,
   )
@@ -30,21 +21,6 @@ object Miner:
     (start, inclusiveEnd)
   }
 
-  // Actual "proof-of-work"-style computation.
-  // the parameters of this method is
-  // only thing missing the nonce when compared with the fields of a Block
-  //
-  // all the fixed elements a block:
-  //
-  //  - index,
-  //  - parentHash,
-  //  - transactions,
-  //  - miningTargetNumber
-  //
-  // by varying the nonce, a block hash that is below the
-  // given miningTargetNumber is attempted.
-  //
-  // NOTE: the block hash can be transformed to an actual number
   def mine(
     index: Int,
     parentHash: Hash,
@@ -70,10 +46,7 @@ object Miner:
     }
     Task.raceAll(mines.head, mines.tail).map(_.get)
 
-  // Creates a target number with the requirement of having
-  // some leading zeros. More leading zeros means smaller target number.
-  //
-  // NOTE: use less leading zeros if not too particular and not wanting to cause too many compute cycles
+  // NOTE: use less leading zeros if not too particular and not wanting to cause too many compute-cycles
   private def targetByLeadingZeros(zeros: Int) =
     require(zeros < Sha256.NumberOfBytes)
 
