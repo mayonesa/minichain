@@ -79,12 +79,8 @@ object Miner:
 
     val bytes: Bytes =
       Array.tabulate[Byte](32) { n =>
-        if (n < zeros) {
-          0
-        }
-        else {
-          0xff.toByte
-        }
+        if n < zeros then 0
+        else 0xff.toByte
       }
 
     Number(1, bytes)
