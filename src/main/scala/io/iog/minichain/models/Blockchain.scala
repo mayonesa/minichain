@@ -19,7 +19,7 @@ private class FastBlockchain(chainRef: Ref[IndexedMap[Hash, Block]]) extends Blo
     Task.suspend(chainRef.update { chain =>
       require(chain.size == block.index, "append-attempt block index clashes w/ target blockchain")
       chain :+ (block.cryptoHash -> block)
-    })
+    }).absorb
 
   def findByIndex(index: Int): UIO[Option[Block]] = get(_.at(index))
 
