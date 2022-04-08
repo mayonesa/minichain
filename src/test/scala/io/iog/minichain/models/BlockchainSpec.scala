@@ -7,7 +7,7 @@ import org.scalactic.TripleEquals.convertToEqualizer
 import Miner.StdMiningTargetNumber
 import zio.test.TestAspect.*
 
-object BlockchainSpec extends ZIOSpecDefault:
+object BlockchainSpec extends DefaultRunnableSpec:
   private val Genesis = Block(0, Hash("hello".getBytes), Seq("1.1", "1.2"), StdMiningTargetNumber, 1)
 
   private val singleFiber = suite("single-fiber fast blockchain spec")(
