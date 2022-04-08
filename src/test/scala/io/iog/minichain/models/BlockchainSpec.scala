@@ -3,13 +3,14 @@ package io.iog.minichain.models
 import zio.{UIO, Task}
 import zio.test.*
 import zio.test.Assertion.*
-import zio.test.TestAspect.flaky
 
 import org.scalactic.TripleEquals.convertToEqualizer
 
-import Miner.{Genesis, StdMiningTargetNumber}
+import Miner.StdMiningTargetNumber
 
 object BlockchainSpec extends DefaultRunnableSpec:
+  private val Genesis = Block(0, Hash("hello".getBytes), Seq("1.1", "1.2"), StdMiningTargetNumber, 1)
+
   private val singleFiber = suite("single-fiber fast blockchain spec")(
     test("empty") {
       assertM(Blockchain.empty.flatMap(_.findByIndex(0)))(isNone)
@@ -17,45 +18,40 @@ object BlockchainSpec extends DefaultRunnableSpec:
     test("append") {
       for
         blockchain <- Blockchain.empty
-        genesis    <- Genesis
-        _          <- blockchain.append(genesis)
-        res        <- blockchain.findByIndex(genesis.index)
-      yield assertTrue(res.contains(genesis))
+        _          <- blockchain.append(Genesis)
+        res        <- blockchain.findByIndex(Genesis.index)
+      yield assertTrue(res.contains(Genesis))
     },
     test("not find-by-index") {
       for
         blockchain <- Blockchain.empty
-        genesis    <- Genesis
-        _          <- blockchain.append(genesis)
+        _          <- blockchain.append(Genesis)
         res        <- blockchain.findByIndex(1)
       yield assertTrue(res.isEmpty)
     },
     test("not find-by-hash") {
       for
         blockchain <- Blockchain.empty
-        genesis    <- Genesis
-        _          <- blockchain.append(genesis)
+        _          <- blockchain.append(Genesis)
         res        <- blockchain.findByHash(Hash("wrong hash".getBytes))
       yield assertTrue(res.isEmpty)
     },
     test("not find-by-hash") {
       for
         blockchain <- Blockchain.empty
-        genesis    <- Genesis
-        _          <- blockchain.append(genesis)
+        _          <- blockchain.append(Genesis)
         res        <- blockchain.findByHash(Hash("wrong hash".getBytes))
       yield assertTrue(res.isEmpty)
     },
     test("common ancestor") {
       for
         blockchain1  <- Blockchain.empty
-        genesis      <- Genesis
-        _            <- blockchain1.append(genesis)
+        _            <- blockchain1.append(Genesis)
         block2       =  Block(1, Hash("hello".getBytes), Seq("2.1", "2.2"), StdMiningTargetNumber, 1)
         _            <- blockchain1.append(block2)
         _            <- blockchain1.append(Block(2, Hash("good-bye".getBytes), Seq("1.3"), StdMiningTargetNumber, 2))
         blockchain2  <- Blockchain.empty
-        _            <- blockchain2.append(genesis)
+        _            <- blockchain2.append(Genesis)
         _            <- blockchain2.append(block2)
         _            <- blockchain2.append(Block(2, Hash("good-bye, pt. 2".getBytes), Seq("2.3", "xsaction3"),
           StdMiningTargetNumber, 3))
@@ -68,9 +64,7 @@ object BlockchainSpec extends DefaultRunnableSpec:
     test("multi find-by-index") {
       for
         blockchain <- Blockchain.empty
-        genesis    <- Genesis
-        _          <- blockchain.append(genesis)
-        _          <- Task.foreachDiscard(1 until 100) { i =>
+        _          <- Task.foreachDiscard(0 until 100) { i =>
           val block = Block(i, Hash("hello".getBytes), Seq("2.1", "2.2"), StdMiningTargetNumber, i * 5)
           blockchain.append(block)
         }
@@ -78,7 +72,7 @@ object BlockchainSpec extends DefaultRunnableSpec:
           blockchain.findByIndex(i).map(_.get.index === i)
         }
       yield assertTrue(results.forall(identity))
-    } @@ flaky(100),
+    },
   )
 
   def spec = suite("fast blockchain spec")(singleFiber, multiFiber)
