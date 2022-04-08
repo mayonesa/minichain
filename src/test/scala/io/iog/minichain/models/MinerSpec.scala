@@ -3,7 +3,7 @@ package io.iog.minichain.models
 import zio.Task
 import zio.test.*
 import zio.test.Assertion.*
-import zio.test.TestAspect.nonFlaky
+import zio.test.TestAspect.*
 
 object MinerSpec extends DefaultRunnableSpec:
   def spec = suite("miner spec")(
