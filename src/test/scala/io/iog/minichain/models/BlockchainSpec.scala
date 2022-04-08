@@ -70,7 +70,7 @@ object BlockchainSpec extends DefaultRunnableSpec:
         results    <- UIO.foreachPar(0 until 100) { i =>
           blockchain.findByIndex(i).map(_.get.index === i)
         }
-      yield assertTrue(results.forall(bool => bool))
+      yield assertTrue(results.forall(indexMatches => indexMatches))
     } @@ nonFlaky(10),
   )
 
