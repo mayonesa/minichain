@@ -23,7 +23,7 @@ object BlockchainSpec extends DefaultRunnableSpec:
     } @@ nonFlaky(10),
     test("illegal append") {
       val badIndexBlock = Block(1, Hash("hello".getBytes), Seq("1.1", "1.2"), StdMiningTargetNumber, 1)
-      assertM(Blockchain.empty.flatMap(_.append(badIndexBlock)).exit)(dies(anything))
+      assertM(Blockchain.empty.flatMap(_.append(badIndexBlock)).exit)(fails(anything))
     },
     test("not find-by-index") {
       for
