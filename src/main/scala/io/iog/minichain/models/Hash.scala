@@ -7,7 +7,7 @@ type Bytes = Array[Byte]
 type Number = BigInt
 val Number = BigInt
 
-class Hash(bytes: Bytes) extends Serializable:  // not `case` -- no need to access `bytes`
+case class Hash(bytes: Bytes):
   lazy val asNumber: Number = Number(1, bytes)
 
   lazy val asHexString: String = "0x" + bytes.map { byte =>
