@@ -12,7 +12,7 @@ val Number = BigInt
 // as a number or a hex string. The number representation
 // is used in the mining process. The hex representation is for logging
 // purposes.
-case class Hash(bytes: Bytes):
+class Hash(bytes: Bytes) extends Serializable:  // not `case` -- no need to access `bytes`
   lazy val asNumber: Number = Number(1, bytes)
 
   lazy val asHexString: String = "0x" + bytes.map { byte =>
